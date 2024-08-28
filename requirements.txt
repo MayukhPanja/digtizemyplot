@@ -5,5 +5,4 @@ pandas
 matplotlib
 scikit-learn
 scipy
-opencv-python==4.10.0
-opencv-python-headless==4.10.0
+opencv-python==4.10.0.84
