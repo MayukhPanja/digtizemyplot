@@ -1,8 +1,8 @@
-streamlit
-numpy
-pytesseract
-pandas
-matplotlib
-scikit-learn
-scipy
+streamlit==1.37.1
+numpy==1.24.3
+pytesseract==0.3.10
+pandas==2.0.3
+matplotlib==3.7.2
+scikit-learn==1.3.2
+scipy==1.10.1
 opencv-python-headless==4.10.0.84
