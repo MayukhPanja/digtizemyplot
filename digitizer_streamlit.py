@@ -34,7 +34,9 @@ def dominant_colors(image, num_colors=7):
     return dominant_colors
 
 
-# In[4]:
+# Function to convert RGB to hex
+def rgb_to_hex(rgb):
+    return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
 
 
 def plot_colors(colors):
@@ -442,7 +444,15 @@ if uploaded_file is not None:
         _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
         #st.image(binary, caption='Binary Image.', use_column_width=True)
         detected_colors = dominant_colors(image)
+        st.write("Detected colors:")
 
+        for color in detected_colors:
+            hex_color = rgb_to_hex(color)
+            st.markdown(
+                f'<div style="width:50px; height:50px; background-color:{hex_color};"></div>',
+                unsafe_allow_html=True
+            )
+            st.write(f"RGB: {color} - HEX: {hex_color}")
 
 
         max_len = 0
