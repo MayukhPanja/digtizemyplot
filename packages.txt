@@ -1,2 +1,2 @@
-tesseract-ocr
+tesseract-ocr 5.4.1
 
