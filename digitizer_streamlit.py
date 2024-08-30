@@ -78,7 +78,8 @@ def extract_txt(binary, custom_config):
     st.write(custom_config, '\n',txt_list)
     boxes = pytesseract.image_to_boxes(binary,config=custom_config)
     box_list_tmp = boxes.strip().split('\n')
-    while "" in txt_list: txt_list.remove("")
+    #while "" in txt_list: txt_list.remove("")
+    txt_list  = [item for item in txt_list if item != "" ]
     while '~' in txt_list: txt_list.remove('')
     box_list = []
     for box in box_list_tmp:
