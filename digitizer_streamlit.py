@@ -430,7 +430,7 @@ st.title("Digitze your plot")
 uploaded_file = st.file_uploader("Upload Image", type="png")
 if uploaded_file is not None:
     st.write("File uploaded successfully. Click 'Run' to process the file.")
-    st.write("Using version: ",pytesseract._version_)
+    #st.write("Using version: ",pytesseract._version_)
     # Display the Run button
     run_button = st.button("Run")
     if run_button:
