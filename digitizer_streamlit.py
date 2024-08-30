@@ -6,6 +6,7 @@
 import cv2
 import numpy as np
 import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
 from matplotlib import pyplot as plt
 import pandas as pd
 import datetime as dt
@@ -15,6 +16,7 @@ from scipy import stats
 import streamlit as st
 from io import BytesIO
 from PIL import Image
+
 
 
 def dominant_colors(image, num_colors=7):
@@ -92,7 +94,7 @@ def extract_txt(binary, custom_config):
             txt_list[i:i+1] = txt_n
     
     st.write("Text list final:", txt_list)
-    return txt_list[0:-1],box_list
+    return txt_list,box_list
 
 
 # In[7]:
