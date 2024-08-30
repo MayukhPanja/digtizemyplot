@@ -75,6 +75,7 @@ def filter_color(image, target_rgb, tolerance=15):
 def extract_txt(binary, custom_config):
     strings = pytesseract.image_to_string(binary, config=custom_config)
     txt_list = strings.split('\n')
+    st.write(custom_config, '\n',txt_list)
     boxes = pytesseract.image_to_boxes(binary,config=custom_config)
     box_list_tmp = boxes.strip().split('\n')
     while "" in txt_list: txt_list.remove("")
@@ -497,7 +498,7 @@ if uploaded_file is not None:
             count_y = 0
             real_y, img_y = [],[]
             txt_list,box_list = extract_txt(binary, custom_configs[counter_y])
-            st.write(count_y,txt_list,box_list)
+            #st.write(count_y,txt_list,box_list)
             txt_x1,txt_x2,txt_y1,txt_y2 = find_txt_bnds(txt_list,box_list)
             y_ax_ypts = detect_yaxes_chars(binary,box_list,padding=2)
             real_y,img_y,count_y = detect_y_ax_ticks(txt_list,box_list,txt_y1,txt_y2,y_ax_ypts,real_y,img_y,count_y)
