@@ -497,6 +497,7 @@ if uploaded_file is not None:
             count_y = 0
             real_y, img_y = [],[]
             txt_list,box_list = extract_txt(binary, custom_configs[counter_y])
+            st.write(count_y,txt_list,box_list)
             txt_x1,txt_x2,txt_y1,txt_y2 = find_txt_bnds(txt_list,box_list)
             y_ax_ypts = detect_yaxes_chars(binary,box_list,padding=2)
             real_y,img_y,count_y = detect_y_ax_ticks(txt_list,box_list,txt_y1,txt_y2,y_ax_ypts,real_y,img_y,count_y)
