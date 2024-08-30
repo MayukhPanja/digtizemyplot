@@ -449,8 +449,14 @@ if uploaded_file is not None:
         color_boxes = ""
         for color in detected_colors:
             hex_color = rgb_to_hex(color)
-            color_boxes += f'<div style="width:50px; height:50px; background-color:{hex_color}; display:inline-block; margin-right:10px;"></div>'
-
+            #color_boxes += f'<div style="width:50px; height:50px; background-color:{hex_color}; display:inline-block; margin-right:10px;"></div>'
+            rgb_text = f"RGB: {color}"
+            color_boxes += f'''
+            <div style="display:inline-block; text-align:center; margin-right:20px;">
+                <div style="width:50px; height:50px; background-color:{hex_color};"></div>
+                <div style="margin-top:5px;">{rgb_text}</div>
+            </div>
+            '''
         st.markdown(color_boxes, unsafe_allow_html=True)
 
 
