@@ -446,13 +446,12 @@ if uploaded_file is not None:
         detected_colors = dominant_colors(image)
         st.write("Detected colors:")
 
+        color_boxes = ""
         for color in detected_colors:
             hex_color = rgb_to_hex(color)
-            st.markdown(
-                f'<div style="width:50px; height:50px; background-color:{hex_color};"></div>',
-                unsafe_allow_html=True
-            )
-            st.write(f"RGB: {color} - HEX: {hex_color}")
+            color_boxes += f'<div style="width:50px; height:50px; background-color:{hex_color}; display:inline-block; margin-right:10px;"></div>'
+
+        st.markdown(color_boxes, unsafe_allow_html=True)
 
 
         max_len = 0
