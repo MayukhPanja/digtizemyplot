@@ -92,7 +92,7 @@ def extract_txt(binary, custom_config):
             txt_list[i:i+1] = txt_n
     
     st.write("Text list final:", txt_list)
-    return txt_list,box_list
+    return txt_list[0:-1],box_list
 
 
 # In[7]:
