@@ -89,6 +89,8 @@ def extract_txt(binary, custom_config):
         if len(txt) > 10:
             txt_n = txt.split(' ')
             txt_list[i:i+1] = txt_n
+    
+    st.write("Text list final:", txt_list)
     return txt_list,box_list
 
 
