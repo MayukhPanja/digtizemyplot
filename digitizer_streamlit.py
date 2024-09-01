@@ -6,7 +6,7 @@
 import cv2
 import numpy as np
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+#pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
 from matplotlib import pyplot as plt
 import pandas as pd
 import datetime as dt
@@ -17,7 +17,7 @@ import streamlit as st
 from io import BytesIO
 from PIL import Image
 
-
+st.write(pytesseract.get_tesseract_version())
 
 def dominant_colors(image, num_colors=7):
 
