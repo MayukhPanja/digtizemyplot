@@ -124,7 +124,7 @@ def rgb_to_hex(rgb):
     return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
 
 
-st.title("DigMyPLot: Digitize your plot")
+st.title("DigMyPlot: Digitize your plot")
 st.write("Automated digitization of images of plots")
 
 uploaded_file = st.file_uploader("Upload Image", type="png")
