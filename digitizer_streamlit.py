@@ -297,7 +297,7 @@ if uploaded_file is not None:
     chosen_clr = df[df['Brightness'] == chosen_br]['Color'].iloc[0]
     hex_color = rgb_to_hex(chosen_clr)
     rgb_text = f"RGB: {chosen_clr}"
-    st.write("**Detected color of plot: **")
+    st.write("**Detected color of plot:**")
     color_box = f'''
         <div style="display:inline-block; text-align:center; margin-right:20px;">
             <div style="width:50px; height:50px; background-color:{hex_color};"></div>
