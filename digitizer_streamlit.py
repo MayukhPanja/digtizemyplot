@@ -264,19 +264,18 @@ if uploaded_file is not None:
 
     color_boxes = ""
     for color in detected_colors:
-        if color is [255,255,255]:
+        if np.all(color == np.array([255,255,255])):
             continue
         hex_color = rgb_to_hex(color)
         #color_boxes += f'<div style="width:50px; height:50px; background-color:{hex_color}; display:inline-block; margin-right:10px;"></div>'
-        rgb_text = f"RGB: {color}"
+        #rgb_text = f"RGB: {color} <div style="margin-top:5px;">{rgb_text}</div>"
         color_boxes += f'''
         <div style="display:inline-block; text-align:center; margin-right:20px;">
             <div style="width:50px; height:50px; background-color:{hex_color};"></div>
-            <div style="margin-top:5px;">{rgb_text}</div>
+            
         </div>
         '''
     st.markdown(color_boxes, unsafe_allow_html=True)
-    st.write("Detecting color of line plot........")
     max_len = 0
     #max_color = [255,255,255]
     df = pd.DataFrame(columns=['Color','Coherent length','Length', 'Brightness'])
@@ -296,12 +295,12 @@ if uploaded_file is not None:
     chosen_br = df.sort_values(by=['Coherent length'],ascending=False)[0:3]['Brightness'].min() 
     chosen_clr = df[df['Brightness'] == chosen_br]['Color'].iloc[0]
     hex_color = rgb_to_hex(chosen_clr)
-    rgb_text = f"RGB: {chosen_clr}"
+    #rgb_text = f"RGB: {chosen_clr} [<div style="margin-top:5px;">{rgb_text}</div>] put this in color box"
     st.write("**Detected color of plot:**")
     color_box = f'''
         <div style="display:inline-block; text-align:center; margin-right:20px;">
             <div style="width:50px; height:50px; background-color:{hex_color};"></div>
-            <div style="margin-top:5px;">{rgb_text}</div>
+            
         </div>
         '''
     st.markdown(color_box, unsafe_allow_html=True)
