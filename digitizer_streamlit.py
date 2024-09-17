@@ -263,7 +263,7 @@ if uploaded_file is not None:
     st.write("Detected colors in image:")
 
     color_boxes = ""
-    for color in detected_colors:
+    for idx, color in enumerate(detected_colors, 1):
         if np.all(color == np.array([255,255,255])):
             continue
         hex_color = rgb_to_hex(color)
@@ -272,7 +272,7 @@ if uploaded_file is not None:
         color_boxes += f'''
         <div style="display:inline-block; text-align:center; margin-right:20px;">
             <div style="width:50px; height:50px; background-color:{hex_color};"></div>
-            
+            <p style="font-weight:bold;">{idx}</p>
         </div>
         '''
     st.markdown(color_boxes, unsafe_allow_html=True)
