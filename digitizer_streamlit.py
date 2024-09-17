@@ -295,6 +295,7 @@ if uploaded_file is not None:
     chosen_br = df.sort_values(by=['Coherent length'],ascending=False)[0:3]['Brightness'].min() 
     chosen_clr = df[df['Brightness'] == chosen_br]['Color'].iloc[0]
     hex_color = rgb_to_hex(chosen_clr)
+    df.write(chosen_clr)
     #rgb_text = f"RGB: {chosen_clr} [<div style="margin-top:5px;">{rgb_text}</div>] put this in color box"
     st.write("**Detected color of plot:**")
     color_box = f'''
