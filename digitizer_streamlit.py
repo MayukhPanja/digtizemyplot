@@ -226,8 +226,8 @@ def detect_plot_color(detected_colors):
         filt_data = data_tmp[data_tmp!=0]
         bright = 0.299*colr[0] + 0.587*colr[1] + 0.114*colr[2]
         #plt.plot(filt_data)
-        #if len(filt_data) < image.shape[1]*0.3:
-        #    continue
+        if len(filt_data) < image.shape[1]*0.2:
+            continue
         df.loc[len(df.index)] = [colr, len(filt_data),len(data),bright]
         #if len(filt_data) > max_len:
         #    max_len = len(filt_data)
