@@ -462,7 +462,7 @@ if uploaded_file is not None:
 
     data_shift = data*y_compress + c
     if mode == 'dtime':
-        df_tmp = pd.DataFrame(data_shift, index=img_date_idx, columns=['A'])
+        df_tmp = pd.DataFrame(data_shift, index=img_date_idx, columns=['Data'])
         df = df_tmp.resample('D').median().interpolate()
     if mode == 'normal':
         df = pd.DataFrame(data_shift, index=fin_x_ax, columns=['Data'])
