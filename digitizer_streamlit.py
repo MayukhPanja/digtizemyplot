@@ -478,6 +478,12 @@ if uploaded_file is not None:
     # Display the chart in Streamlit
     st.pyplot(fig)
 
+    st.download_button(
+                        label="Download data as CSV",
+                        data=df.to_csv(),
+                        file_name='digmyplot_data.csv',
+                        mime='text/csv',
+                    )
 
 st.write("App designed by Mayukh Panja. For feedback write to mayukhpanja@gmail.com or @mayukh_panja on X.")
 
