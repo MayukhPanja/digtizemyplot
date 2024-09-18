@@ -230,7 +230,6 @@ def get_yticks(txt_list,flag_ytick,txt_ymin,txt_ymax):
 def get_xticks(txt_list,flag_xtick,txt_xmin,txt_xmax):
     real_x, img_x = [],[]
     count_x = 0
-    
     for i,txt in sorted(enumerate(txt_list),reverse=True):
         if flag_xtick[i] == 1:
             print(txt)
@@ -245,7 +244,8 @@ def get_xticks(txt_list,flag_xtick,txt_xmin,txt_xmax):
                 count_x+=1
                 real_x.append(try_dtime_2(txt))
                 img_x.append(round(0.5*(txt_xmax[i] + txt_xmin[i])))
-                mode = 'dtime'
+                mode = 'dtime-daily'
+                
             elif is_float(txt):
                 print(txt,' Here:3')
                 count_x_=1
@@ -384,7 +384,7 @@ if uploaded_file is not None:
     ax.imshow(gray_tmp, cmap='gray', origin='lower')
 
     # Add text annotations based on the mode
-    if mode == 'dtime':
+    if mode == 'dtime' or mode == 'dtime-daily':
         ax.text(img_x[g]-50, 150, 'Detected: ' + str(real_x[g]),color='red')
         ax.text(img_x[h]-50, 50, 'Detected: ' + str(real_x[h]),color='red')
         ax.text(x_shift-50, 50, 'Detected: data begins',color='red')
@@ -401,7 +401,7 @@ if uploaded_file is not None:
 
 
     x_ax = np.arange(0,len(data_full))
-    if mode == 'dtime':
+    if mode == 'dtime' or mode == 'dtime-daily':
         if len(real_x) > 2:
             days_p_pt1 = (real_x[0] - real_x[1]).days/(img_x[0]-img_x[1])
             days_p_pt2 = (real_x[1] - real_x[2]).days/(img_x[1]-img_x[2])
@@ -463,6 +463,8 @@ if uploaded_file is not None:
 
     data_shift = data_full*y_compress + c
     if mode == 'dtime':
+        df = pd.DataFrame(data_shift, index=img_date_idx, columns=['Data'])
+    if mode == 'dtime-daily':
         df_tmp = pd.DataFrame(data_shift, index=img_date_idx, columns=['Data'])
         df = df_tmp.resample('D').median()#.interpolate()
     if mode == 'normal':
@@ -473,11 +475,11 @@ if uploaded_file is not None:
 
 
      # Create a plot with customized y-axis limits
-    fig, ax = plt.subplots(figsize=(10,5))
-    ax.plot(df)
-    ax.set_ylim([df['Data'].min()-0.5*df['Data'].std(), df['Data'].max()+0.5*df['Data'].std()])
+    fig3, ax3 = plt.subplots(figsize=(10,5))
+    ax3.plot(df,'k')
+    ax3.set_ylim([df['Data'].min()-0.5*df['Data'].std(), df['Data'].max()+0.5*df['Data'].std()])
     # Display the chart in Streamlit
-    st.pyplot(fig)
+    st.pyplot(fig3)
 
     st.markdown("""
         <style>
