@@ -286,8 +286,8 @@ def detect_plot_color(detected_colors):
     return chosen_clr
 
 
-st.title("DigMyPlot: Digitize your plot image")
-st.write("Fully automated data extraction from images of plots")
+st.title("DigMyPlot: Digitize your plot")
+st.header("Fully automated data extraction from images of plots")
 
 uploaded_file = st.file_uploader("Upload Image", type="png")
 if uploaded_file is not None:
