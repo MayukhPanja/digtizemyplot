@@ -332,7 +332,7 @@ if uploaded_file is not None:
         real_y,img_y = get_yticks(txt_list2,flag_tick2['flag_ytick'],txt_pos2['txt_ymin'],txt_pos2['txt_ymax'])
         st.write('Axis detection backup algorithm deployed.')
     detected_colors = dominant_colors(image)
-    st.write("Detected colors in image:")
+    st.write("**Detecting all colors in image:**")
 
     
     color_boxes = ""
@@ -341,11 +341,13 @@ if uploaded_file is not None:
             continue
         hex_color = rgb_to_hex(color)
         #color_boxes += f'<div style="width:50px; height:50px; background-color:{hex_color}; display:inline-block; margin-right:10px;"></div>'
+        #<p style="font-weight:bold;">{idx}</p> IF I WANT TO LATER ADD NUMBERS To DISPLAYED COLOR
         rgb_text = f"RGB: {color}"
         color_boxes += f'''
+        
         <div style="display:inline-block; text-align:center; margin-right:20px;">
             <div style="width:50px; height:50px; background-color:{hex_color};"></div>
-            <p style="font-weight:bold;">{idx}</p>
+            
         </div>
         '''
     st.markdown(color_boxes, unsafe_allow_html=True)
@@ -356,7 +358,7 @@ if uploaded_file is not None:
     plot_color = detect_plot_color(detected_colors)
     hex_color = rgb_to_hex(plot_color)
     #rgb_text = f"RGB: {chosen_clr}"
-    st.write("**Detected color of plot:**")
+    st.write("**Detecting color of plot:**")
     color_box = f'''
         <div style="display:inline-block; text-align:center; margin-right:20px;">
             <div style="width:50px; height:50px; background-color:{hex_color};"></div>
@@ -370,7 +372,7 @@ if uploaded_file is not None:
 
     # In[11]:
 
-
+    st.write('**Detecting axis ticks**')
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     gray = cv2.flip(gray,0)
     gray_tmp = gray.copy()
@@ -387,17 +389,21 @@ if uploaded_file is not None:
     if mode == 'dtime' or mode == 'dtime-daily':
         ax.text(img_x[g]-50, 150, 'Detected: ' + str(real_x[g]),color='red')
         ax.text(img_x[h]-50, 50, 'Detected: ' + str(real_x[h]),color='red')
-        ax.text(x_shift-50, 50, 'Detected: data begins',color='red')
+        #ax.text(x_shift-50, 50, 'Detected: data begins',color='red')
     else:
         ax.text(img_x[g]-50, 150, 'Detected: ' + str(real_x[g]),color='red')
         ax.text(img_x[h]-50, 50, 'Detected: ' + str(real_x[h]),color='red')
-        ax.text(x_shift-50, 50, 'Detected: data begins',color='red')
+        #ax.text(x_shift-50, 50, 'Detected: data begins',color='red')
 
     ax.text(200, img_y[g]+10, 'Detected: ' + str(real_y[g]),color='red')
     ax.text(250, img_y[h]+10, 'Detected: ' + str(real_y[h]),color='red')
     st.pyplot(fig)
 
-    # In[12]:
+    st.write('**Detecting data points**')
+    fig1, ax1 = plt.subplots(figsize=(10, 5))
+    ax1.imshow(gray, cmap='gray', origin='lower')
+    ax1.plot(data_full,'r*')
+    st.pyplot(fig1)
 
 
     x_ax = np.arange(0,len(data_full))
