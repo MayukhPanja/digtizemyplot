@@ -472,7 +472,7 @@ if uploaded_file is not None:
 
 
      # Create a plot with customized y-axis limits
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10,5))
     ax.plot(df)
     ax.set_ylim([df['Data'].min()-0.5*df['Data'].std(), df['Data'].max()+0.5*df['Data'].std()])
     # Display the chart in Streamlit
