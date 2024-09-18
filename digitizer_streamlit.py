@@ -115,9 +115,10 @@ def get_raw_data(filt_bin):
     pos_flip = im_ht - pos
     x_loc = pos_flip < im_ht
     data = pos_flip[x_loc]
+    data_full = np.where(x_loc == True, pos_flip, np.nan)
     x_shift = np.argmax(x_loc)
-    x_end = im_ln -  np.argmax(np.flip(x_loc)) - 1
-    return x_shift,data
+    #x_end = im_ln -  np.argmax(np.flip(x_loc)) - 1
+    return x_shift,data,data_full
 
 # Function to convert RGB to hex
 def rgb_to_hex(rgb):
@@ -259,7 +260,7 @@ def detect_plot_color(detected_colors):
     df = pd.DataFrame(columns=['Color','Coherent length','Length', 'Brightness','IsGray'])
     for colr in detected_colors:
         filt_bin = filter_color(image,colr)
-        x_shift,data = get_raw_data(filt_bin)
+        x_shift,data,_ = get_raw_data(filt_bin)
         mode_st = stats.mode(data,keepdims=False)
         data_tmp = data - mode_st[0]
         filt_data = data_tmp[data_tmp!=0]
@@ -364,7 +365,7 @@ if uploaded_file is not None:
         '''
     st.markdown(color_box, unsafe_allow_html=True)
     filt_bin = filter_color(image,plot_color)
-    x_shift,data = get_raw_data(filt_bin)
+    x_shift,data,data_full = get_raw_data(filt_bin)
     
 
     # In[11]:
@@ -390,7 +391,7 @@ if uploaded_file is not None:
     else:
         ax.text(img_x[g]-50, 150, 'Detected: ' + str(real_x[g]),color='red')
         ax.text(img_x[h]-50, 50, 'Detected: ' + str(real_x[h]),color='red')
-        ax.text(x_shift-50, 50, 'Detected: data begins')
+        ax.text(x_shift-50, 50, 'Detected: data begins',color='red')
 
     ax.text(200, img_y[g]+10, 'Detected: ' + str(real_y[g]),color='red')
     ax.text(250, img_y[h]+10, 'Detected: ' + str(real_y[h]),color='red')
@@ -399,21 +400,21 @@ if uploaded_file is not None:
     # In[12]:
 
 
-    x_ax = np.arange(0,len(data))
+    x_ax = np.arange(0,len(data_full))
     if mode == 'dtime':
         if len(real_x) > 2:
             days_p_pt1 = (real_x[0] - real_x[1]).days/(img_x[0]-img_x[1])
             days_p_pt2 = (real_x[1] - real_x[2]).days/(img_x[1]-img_x[2])
             days_p_pt = 0.5*(days_p_pt2 + days_p_pt1)
-            start_date1 = real_x[0] - pd.Timedelta(days=days_p_pt* (img_x[0]-x_shift))
-            start_date2 = real_x[1] - pd.Timedelta(days=days_p_pt* (img_x[1]-x_shift))
-            start_date3 = real_x[2] - pd.Timedelta(days=days_p_pt* (img_x[2]-x_shift))
+            start_date1 = real_x[0] - pd.Timedelta(days=days_p_pt* (img_x[0]))
+            start_date2 = real_x[1] - pd.Timedelta(days=days_p_pt* (img_x[1]))
+            start_date3 = real_x[2] - pd.Timedelta(days=days_p_pt* (img_x[2]))
             start_date = pd.to_datetime((start_date1.timestamp() + start_date2.timestamp() +start_date3.timestamp())/3,unit='s')
             img_date_idx =start_date + pd.to_timedelta(x_ax*days_p_pt, unit='D')
         elif len(real_x) == 2:
             days_p_pt = (real_x[0] - real_x[1]).days/(img_x[0]-img_x[1])
-            start_date1 = real_x[1] - pd.Timedelta(days=days_p_pt* (img_x[1]-x_shift))
-            start_date2 = real_x[0] - pd.Timedelta(days=days_p_pt* (img_x[0]-x_shift))
+            start_date1 = real_x[1] - pd.Timedelta(days=days_p_pt* (img_x[1]))
+            start_date2 = real_x[0] - pd.Timedelta(days=days_p_pt* (img_x[0]))
             start_date = pd.to_datetime((start_date1.timestamp() + start_date2.timestamp())/2,unit='s')
             img_date_idx =start_date + pd.to_timedelta(x_ax*days_p_pt, unit='D')
         
@@ -422,15 +423,15 @@ if uploaded_file is not None:
             x_compress1 = (real_x[0] - real_x[1])/(img_x[0]-img_x[1])
             x_compress2 = (real_x[1] - real_x[2])/(img_x[1]-img_x[2])
             x_compress = 0.5*(x_compress1+x_compress2)
-            start_x1 = real_x[1] - x_compress*(img_x[1]-x_shift)
-            start_x2 = real_x[2] - x_compress*(img_x[2]-x_shift)
-            start_x3= real_x[0] -  x_compress*(img_x[0]-x_shift)
+            start_x1 = real_x[1] - x_compress*(img_x[1])
+            start_x2 = real_x[2] - x_compress*(img_x[2])
+            start_x3= real_x[0] -  x_compress*(img_x[0])
             start_x = (start_x1+start_x2+start_x3)/3
             fin_x_ax = start_x + x_ax*x_compress
         elif len(real_x) == 2:
             x_compress = (real_x[0] - real_x[1])/(img_x[0]-img_x[1])
-            start_x1 = real_x[1] - x_compress*(img_x[1]-x_shift)
-            start_x2= real_x[0] -  x_compress*(img_x[0]-x_shift)
+            start_x1 = real_x[1] - x_compress*(img_x[1])
+            start_x2= real_x[0] -  x_compress*(img_x[0])
             start_x = (start_x1+start_x2)/2
             fin_x_ax = start_x + x_ax*x_compress
 
@@ -460,10 +461,10 @@ if uploaded_file is not None:
     # In[14]:
 
 
-    data_shift = data*y_compress + c
+    data_shift = data_full*y_compress + c
     if mode == 'dtime':
         df_tmp = pd.DataFrame(data_shift, index=img_date_idx, columns=['Data'])
-        df = df_tmp.resample('D').median().interpolate()
+        df = df_tmp.resample('D').median()#.interpolate()
     if mode == 'normal':
         df = pd.DataFrame(data_shift, index=fin_x_ax, columns=['Data'])
 
