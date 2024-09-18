@@ -387,7 +387,7 @@ if uploaded_file is not None:
     if mode == 'dtime':
         ax.text(img_x[g]-50, 150, 'Detected: ' + str(real_x[g]),color='red')
         ax.text(img_x[h]-50, 50, 'Detected: ' + str(real_x[h]),color='red')
-        ax.text(x_shift-50, 50, 'Detected: data begins')
+        ax.text(x_shift-50, 50, 'Detected: data begins',color='red')
     else:
         ax.text(img_x[g]-50, 150, 'Detected: ' + str(real_x[g]),color='red')
         ax.text(img_x[h]-50, 50, 'Detected: ' + str(real_x[h]),color='red')
@@ -479,6 +479,15 @@ if uploaded_file is not None:
     # Display the chart in Streamlit
     st.pyplot(fig)
 
+    st.markdown("""
+        <style>
+        .stDownloadButton > button {
+            background-color: rgba(52, 201, 235);
+            color: white;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    
     st.download_button(
                         label="Download data as CSV",
                         data=df.to_csv(),
