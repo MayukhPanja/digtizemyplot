@@ -123,6 +123,120 @@ def get_raw_data(filt_bin):
 def rgb_to_hex(rgb):
     return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
 
+def detect_ax_ticks(texts):
+        txt_xmin = []
+        txt_xmax = []
+        txt_ymin = []
+        txt_ymax = []
+        txt_list = []
+        counter = 1
+        txt_list_org = texts[0].description.split('\n')
+        for txt in txt_list_org:
+            word_count = 0
+            word_count2 = 0
+            for word in txt.split(' '):
+                #print(txt,word,texts[counter].description,counter)
+                if word != texts[counter].description:
+                    counter+=1
+                if word == texts[counter].description:
+                    
+                    if word_count == 0:
+                        txt_xmin.append(texts[counter].bounding_poly.vertices[0].x)
+                        txt_ymin.append(texts[counter].bounding_poly.vertices[0].y)
+                        print(txt, ' added min')
+                    word_count2+=1
+                counter+=1
+                word_count+=1
+                
+        
+            #print(counter-1)
+            if word_count == word_count2:
+                print(txt, ' added max',word_count,word_count2)
+                txt_xmax.append(texts[counter-1].bounding_poly.vertices[1].x)
+                txt_ymax.append(texts[counter-1].bounding_poly.vertices[2].y)
+                txt_list.append(txt)
+        
+        ypos1 = np.where(np.diff(txt_ymin,n=1,append=txt_ymin[-1]) <=3,-1,0)
+        ypos2 = np.where(np.diff(txt_ymax,n=1,append=txt_ymax[-1]) <=3,-1,0)
+        xpos1 = np.where(np.diff(txt_xmin,n=1,prepend=txt_xmin[0]) <=3,1,0)
+        xpos2 = np.where(np.diff(txt_xmax,n=1,prepend=txt_xmax[0]) <=3,1,0)
+        
+        ax_pos = ypos2+ypos1+xpos1+xpos2
+        flag_ytick = np.where(ax_pos == 2,1,0)
+        flag_xtick = np.where(ax_pos == -2,1,0)
+        flag_tick = {'flag_xtick':flag_xtick,'flag_ytick':flag_ytick}
+        txt_pos = { 'txt_xmin':txt_xmin, 'txt_xmax':txt_xmax,'txt_ymin':txt_ymin, 'txt_ymax':txt_ymax}
+        return txt_list,flag_tick,txt_pos
+
+def get_yticks(txt_list,flag_ytick,txt_ymin,txt_ymax):
+    real_y,img_y = [],[]
+    count_y = 0
+    
+    for i,txt in enumerate(txt_list):
+        if flag_ytick[i] == 1:
+            if is_float(txt):
+                count_y+=1
+                real_y.append(float(txt))
+                img_y.append(round(0.4*txt_ymin[i] + 0.6*txt_ymax[i]))
+            elif ends_with_dash(txt):
+                if is_float(txt[:-1]):
+                    count_y+=1
+                    real_y.append(float(txt[:-1]))
+                    img_y.append(round(0.4*txt_ymin[i] + 0.6*txt_ymax[i]))
+                    
+    img_y = image.shape[0] - np.array(img_y)
+    return real_y,img_y
+
+def get_xticks(txt_list,flag_xtick,txt_xmin,txt_xmax):
+    real_x, img_x = [],[]
+    count_x = 0
+    
+    for i,txt in sorted(enumerate(txt_list),reverse=True):
+        if flag_xtick[i] == 1:
+            print(txt)
+            if try_dtime_1(txt) != False:
+                print(txt,' Here:1')
+                count_x+=1
+                real_x.append(try_dtime_1(txt))
+                img_x.append(round(0.5*(txt_xmax[i] + txt_xmin[i])))
+                mode = 'dtime'
+            elif try_dtime_2(txt) != False and is_float(txt) == False and has_point(txt) == False:
+                print(txt,' Here:2')
+                count_x+=1
+                real_x.append(try_dtime_2(txt))
+                img_x.append(round(0.5*(txt_xmax[i] + txt_xmin[i])))
+                mode = 'dtime'
+            elif is_float(txt):
+                print(txt,' Here:3')
+                count_x_=1
+                real_x.append(float(txt))
+                img_x.append(round(0.5*(txt_xmax[i] + txt_xmin[i])))
+                mode = 'normal'
+            else:
+                continue
+    return real_x,img_x,mode
+
+def detect_plot_color(detected_colors):
+    df = pd.DataFrame(columns=['Color','Coherent length','Length', 'Brightness'])
+    for colr in detected_colors:
+        filt_bin = filter_color(image,colr)
+        x_shift,data = get_raw_data(filt_bin)
+        mode_st = stats.mode(data,keepdims=False)
+        data_tmp = data - mode_st[0]
+        filt_data = data_tmp[data_tmp!=0]
+        bright = 0.299*colr[0] + 0.587*colr[1] + 0.114*colr[2]
+        #plt.plot(filt_data)
+        #if len(filt_data) < image.shape[1]*0.3:
+        #    continue
+        df.loc[len(df.index)] = [colr, len(filt_data),len(data),bright]
+        #if len(filt_data) > max_len:
+        #    max_len = len(filt_data)
+        #    max_color = colr
+        st.write(df)
+    chosen_br = df.sort_values(by=['Coherent length'],ascending=False)[0:3]['Brightness'].min() 
+    chosen_clr = df[df['Brightness'] == chosen_br]['Color'].iloc[0]
+    return chosen_clr
+
 
 st.title("DigMyPlot: Digitize your plot")
 st.write("Automated digitization of images of plots")
@@ -151,124 +265,28 @@ if uploaded_file is not None:
     # Perform text detection
     response = client.text_detection(image=image)
     texts = response.text_annotations
-    txt_list_org = texts[0].description.split('\n')
-    #print(txt_list)
 
     image_array = np.frombuffer(content, dtype=np.uint8)
     image = cv2.cvtColor(cv2.imdecode(image_array, cv2.IMREAD_COLOR),cv2.COLOR_BGR2RGB)
     #image = cv2.flip(image,0)
     st.image(image,caption="Uploaded Image")
     plt.show()
-
-    txt_xmin = []
-    txt_xmax = []
-    txt_ymin = []
-    txt_ymax = []
-    txt_list = []
-    counter = 1
-    for txt in txt_list_org:
-        word_count = 0
-        word_count2 = 0
-        for word in txt.split(' '):
-            #print(txt,word,texts[counter].description,counter)
-            if word != texts[counter].description:
-                counter+=1
-            if word == texts[counter].description:
-                
-                if word_count == 0:
-                    txt_xmin.append(texts[counter].bounding_poly.vertices[0].x)
-                    txt_ymin.append(texts[counter].bounding_poly.vertices[0].y)
-                    print(txt, ' added min')
-                word_count2+=1
-            counter+=1
-            word_count+=1
-            
-
-        #print(counter-1)
-        if word_count == word_count2:
-            print(txt, ' added max',word_count,word_count2)
-            txt_xmax.append(texts[counter-1].bounding_poly.vertices[1].x)
-            txt_ymax.append(texts[counter-1].bounding_poly.vertices[2].y)
-            txt_list.append(txt)
-
-    ypos1 = np.where(np.diff(txt_ymin,n=1,append=txt_ymin[-1]) <=3,-1,0)
-    ypos2 = np.where(np.diff(txt_ymax,n=1,append=txt_ymax[-1]) <=3,-1,0)
-    xpos1 = np.where(np.diff(txt_xmin,n=1,prepend=txt_xmin[0]) <=3,1,0)
-    xpos2 = np.where(np.diff(txt_xmax,n=1,prepend=txt_xmax[0]) <=3,1,0)
-
-
-   # st.write(txt_list)
-
-
-    ax_pos = ypos2+ypos1+xpos1+xpos2
-    flag_ytick = np.where(ax_pos == 2,1,0)
-    flag_xtick = np.where(ax_pos == -2,1,0)
-
-
-    # In[8]:
-
-
-    real_y,img_y = [],[]
-    count_y = 0
-
-    for i,txt in enumerate(txt_list):
-        if flag_ytick[i] == 1:
-            if is_float(txt):
-                count_y+=1
-                real_y.append(float(txt))
-                img_y.append(round(0.4*txt_ymin[i] + 0.6*txt_ymax[i]))
-            elif ends_with_dash(txt):
-                if is_float(txt[:-1]):
-                    count_y+=1
-                    real_y.append(float(txt[:-1]))
-                    img_y.append(round(0.4*txt_ymin[i] + 0.6*txt_ymax[i]))
-                    
-    img_y = image.shape[0] - np.array(img_y)
-
-
-    # In[9]:
-
-
-    real_x, img_x = [],[]
-    count_x = 0
-
-    for i,txt in sorted(enumerate(txt_list),reverse=True):
-        if flag_xtick[i] == 1:
-            if try_dtime_1(txt) != False:
-                print(txt,' Here:1')
-                count_x+=1
-                real_x.append(try_dtime_1(txt))
-                img_x.append(round(0.5*(txt_xmax[i] + txt_xmin[i])))
-                mode = 'dtime'
-            elif try_dtime_2(txt) != False and is_float(txt) == False and has_point(txt) == False:
-                print(txt,' Here:2')
-                count_x+=1
-                real_x.append(try_dtime_2(txt))
-                img_x.append(round(0.5*(txt_xmax[i] + txt_xmin[i])))
-                mode = 'dtime'
-            elif is_float(txt):
-                print(txt,' Here:3')
-                count_x_=1
-                real_x.append(float(txt))
-                img_x.append(round(0.5*(txt_xmax[i] + txt_xmin[i])))
-                mode = 'normal'
-            else:
-                continue
-
-
-    # In[10]:
-
+        
+    txt_list,flag_tick,txt_pos = detect_ax_ticks(texts)
+    real_y,img_y = get_yticks(txt_list,flag_tick['flag_ytick'],txt_pos['txt_ymin'],txt_pos['txt_ymax'])
+    real_x,img_x,mode = get_xticks(txt_list,flag_tick['flag_xtick'],txt_pos['txt_xmin'],txt_pos['txt_xmax'])
 
     detected_colors = dominant_colors(image)
     st.write("Detected colors in image:")
 
+    
     color_boxes = ""
     for idx, color in enumerate(detected_colors, 1):
         if np.all(color == np.array([255,255,255])):
             continue
         hex_color = rgb_to_hex(color)
         #color_boxes += f'<div style="width:50px; height:50px; background-color:{hex_color}; display:inline-block; margin-right:10px;"></div>'
-        #rgb_text = f"RGB: {color} <div style="margin-top:5px;">{rgb_text}</div>"
+        rgb_text = f"RGB: {color}"
         color_boxes += f'''
         <div style="display:inline-block; text-align:center; margin-right:20px;">
             <div style="width:50px; height:50px; background-color:{hex_color};"></div>
@@ -276,36 +294,22 @@ if uploaded_file is not None:
         </div>
         '''
     st.markdown(color_boxes, unsafe_allow_html=True)
-    max_len = 0
-    #max_color = [255,255,255]
-    df = pd.DataFrame(columns=['Color','Coherent length','Length', 'Brightness'])
-    for colr in detected_colors:
-        filt_bin = filter_color(image,colr)
-        x_shift,data = get_raw_data(filt_bin)
-        mode_st = stats.mode(data,keepdims=False)
-        data_tmp = data - mode_st[0]
-        filt_data = data_tmp[data_tmp!=0]
-        bright = 0.299*colr[0] + 0.587*colr[1] + 0.114*colr[2]
-        #plt.plot(filt_data)
-        print(colr, len(filt_data),len(data),'Brightness: ', bright)
-        df.loc[len(df.index)] = [colr, len(filt_data),len(data),bright]
-        #if len(filt_data) > max_len:
-        #    max_len = len(filt_data)
-        #    max_color = colr
-    chosen_br = df.sort_values(by=['Coherent length'],ascending=False)[0:3]['Brightness'].min() 
-    chosen_clr = df[df['Brightness'] == chosen_br]['Color'].iloc[0]
-    hex_color = rgb_to_hex(chosen_clr)
-    st.write(df)
-    #rgb_text = f"RGB: {chosen_clr} [<div style="margin-top:5px;">{rgb_text}</div>] put this in color box"
+
+    
+    
+    
+    plot_color = detect_plot_color(detected_colors)
+    hex_color = rgb_to_hex(plot_color)
+    #rgb_text = f"RGB: {chosen_clr}"
     st.write("**Detected color of plot:**")
     color_box = f'''
         <div style="display:inline-block; text-align:center; margin-right:20px;">
             <div style="width:50px; height:50px; background-color:{hex_color};"></div>
-            
+        
         </div>
         '''
     st.markdown(color_box, unsafe_allow_html=True)
-    filt_bin = filter_color(image,chosen_clr)
+    filt_bin = filter_color(image,plot_color)
     x_shift,data = get_raw_data(filt_bin)
     
 
@@ -416,8 +420,8 @@ if uploaded_file is not None:
     st.line_chart(df)
 
 
-# In[ ]:
-
-
 st.write("App designed by Mayukh Panja. For feedback write to mayukhpanja@gmail.com or @mayukh_panja on X.")
+
+
+
 
