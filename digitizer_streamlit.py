@@ -168,6 +168,45 @@ def detect_ax_ticks(texts):
         txt_pos = { 'txt_xmin':txt_xmin, 'txt_xmax':txt_xmax,'txt_ymin':txt_ymin, 'txt_ymax':txt_ymax}
         return txt_list,flag_tick,txt_pos
 
+def detect_ax_ticks_backup(texts):
+    txt_xmin = []
+    txt_xmax = []
+    txt_ymin = []
+    txt_ymax = []
+    txt_list = []
+    counter = 1
+    txt_list_org = texts[0].description.split('\n')
+    for txt in txt_list_org:
+        word_count = 0
+        for word in txt.split(' '):
+            #print(txt,word,texts[counter].description,counter)
+            if word != texts[counter].description:
+                counter+=1
+            if word == texts[counter].description:
+                
+                if word_count == 0:
+                    txt_xmin.append(texts[counter].bounding_poly.vertices[0].x)
+                    txt_ymin.append(texts[counter].bounding_poly.vertices[0].y)
+                    txt_xmax.append(texts[counter].bounding_poly.vertices[1].x)
+                    txt_ymax.append(texts[counter].bounding_poly.vertices[2].y)
+                    txt_list.append(word)
+                
+                
+            counter+=1
+            word_count+=1
+    ypos1 = np.where(np.diff(txt_ymin,n=1,append=txt_ymin[-1]) <=3,-1,0)
+    ypos2 = np.where(np.diff(txt_ymax,n=1,append=txt_ymax[-1]) <=3,-1,0)
+    xpos1 = np.where(np.diff(txt_xmin,n=1,prepend=txt_xmin[0]) <=3,1,0)
+    xpos2 = np.where(np.diff(txt_xmax,n=1,prepend=txt_xmax[0]) <=3,1,0)
+
+    ax_pos = ypos2+ypos1+xpos1+xpos2
+    flag_ytick = np.where(ax_pos == 2,1,0)
+    flag_xtick = np.where(ax_pos == -2,1,0)
+    
+    flag_tick = {'flag_xtick':flag_xtick,'flag_ytick':flag_ytick}
+    txt_pos = { 'txt_xmin':txt_xmin, 'txt_xmax':txt_xmax,'txt_ymin':txt_ymin, 'txt_ymax':txt_ymax}
+    return txt_list,flag_tick,txt_pos
+
 def get_yticks(txt_list,flag_ytick,txt_ymin,txt_ymax):
     real_y,img_y = [],[]
     count_y = 0
@@ -232,7 +271,7 @@ def detect_plot_color(detected_colors):
         #if len(filt_data) > max_len:
         #    max_len = len(filt_data)
         #    max_color = colr
-        st.write(df)
+        #st.write(df)
     chosen_br = df.sort_values(by=['Coherent length'],ascending=False)[0:3]['Brightness'].min() 
     chosen_clr = df[df['Brightness'] == chosen_br]['Color'].iloc[0]
     return chosen_clr
@@ -275,7 +314,14 @@ if uploaded_file is not None:
     txt_list,flag_tick,txt_pos = detect_ax_ticks(texts)
     real_y,img_y = get_yticks(txt_list,flag_tick['flag_ytick'],txt_pos['txt_ymin'],txt_pos['txt_ymax'])
     real_x,img_x,mode = get_xticks(txt_list,flag_tick['flag_xtick'],txt_pos['txt_xmin'],txt_pos['txt_xmax'])
-
+    if len(real_x)<2:
+        txt_list2,flag_tick2,txt_pos2 = detect_ax_ticks_backup(texts)
+        real_x,img_x,mode = get_xticks(txt_list2,flag_tick2['flag_xtick'],txt_pos2['txt_xmin'],txt_pos2['txt_xmax'])
+        st.write('Axis detection backup algorithm deployed.')
+    if len(real_y)<2:
+        txt_list2,flag_tick2,txt_pos2 = detect_ax_ticks_backup(texts)
+        real_y,img_y = get_yticks(txt_list2,flag_tick2['flag_ytick'],txt_pos2['txt_ymin'],txt_pos2['txt_ymax'])
+        st.write('Axis detection backup algorithm deployed.')
     detected_colors = dominant_colors(image)
     st.write("Detected colors in image:")
 
