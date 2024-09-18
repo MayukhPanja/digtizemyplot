@@ -471,7 +471,12 @@ if uploaded_file is not None:
     # In[15]:
 
 
-    st.line_chart(df)
+     # Create a plot with customized y-axis limits
+    fig, ax = plt.subplots()
+    ax.plot(df)
+    ax.set_ylim([df['Data'].min()-0.5*df['Data'].std(), df['Data'].max()+0.5*df['Data'].std()])
+    # Display the chart in Streamlit
+    st.pyplot(fig)
 
 
 st.write("App designed by Mayukh Panja. For feedback write to mayukhpanja@gmail.com or @mayukh_panja on X.")
