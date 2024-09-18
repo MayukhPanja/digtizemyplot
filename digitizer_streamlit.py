@@ -256,7 +256,7 @@ def get_xticks(txt_list,flag_xtick,txt_xmin,txt_xmax):
     return real_x,img_x,mode
 
 def detect_plot_color(detected_colors):
-    df = pd.DataFrame(columns=['Color','Coherent length','Length', 'Brightness'])
+    df = pd.DataFrame(columns=['Color','Coherent length','Length', 'Brightness','IsGray'])
     for colr in detected_colors:
         filt_bin = filter_color(image,colr)
         x_shift,data = get_raw_data(filt_bin)
@@ -267,13 +267,21 @@ def detect_plot_color(detected_colors):
         #plt.plot(filt_data)
         if len(filt_data) < image.shape[1]*0.2:
             continue
-        df.loc[len(df.index)] = [colr, len(filt_data),len(data),bright]
+        if np.all(colr == colr[0]):
+            isgray = 1
+        else:
+            isgray = 0
+        df.loc[len(df.index)] = [colr, len(filt_data),len(data),bright,isgray]
         #if len(filt_data) > max_len:
         #    max_len = len(filt_data)
         #    max_color = colr
         #st.write(df)
-    chosen_br = df.sort_values(by=['Coherent length'],ascending=False)[0:3]['Brightness'].min() 
-    chosen_clr = df[df['Brightness'] == chosen_br]['Color'].iloc[0]
+    if df['IsGray'].mean() !=1:
+        df_new = df[df['IsGray'] != 1].copy()
+    else:
+        df_new = df
+    chosen_br = df_new.sort_values(by=['Coherent length'],ascending=False)[0:3]['Brightness'].min() 
+    chosen_clr = df_new[df_new['Brightness'] == chosen_br]['Color'].iloc[0]
     return chosen_clr
 
 
