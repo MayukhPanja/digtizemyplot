@@ -503,7 +503,8 @@ if uploaded_file is not None:
                         mime='text/csv',
                     )
 
-st.write("App designed by **Mayukh Panja**. /n For feedback write to mayukhpanja@gmail.com or @mayukh_panja on X (formerly Twiiter).")
+st.write("App designed by **Mayukh Panja**.")
+st.write("For feedback write to mayukhpanja@gmail.com or **@mayukh_panja on X** (formerly Twiiter).")
 
 
 
