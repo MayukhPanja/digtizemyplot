@@ -512,7 +512,7 @@ if uploaded_file is not None:
                     )
 
 st.write("App designed by **Mayukh Panja**.")
-st.write("If the app does not work with your image, send it to mayukhpanja@gmail.com or **@mayukh_panja on X** (formerly Twiiter).")
+st.write("If the app does not work with your image, send image to mayukhpanja@gmail.com or **@mayukh_panja on X** (formerly Twiiter).")
 
 
 
