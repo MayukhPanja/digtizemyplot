@@ -133,6 +133,7 @@ def rgb_to_hex(rgb):
     return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
 
 def detect_ax_ticks(texts):
+    try:
         txt_xmin = []
         txt_xmax = []
         txt_ymin = []
@@ -175,7 +176,9 @@ def detect_ax_ticks(texts):
         flag_xtick = np.where(ax_pos == -2,1,0)
         flag_tick = {'flag_xtick':flag_xtick,'flag_ytick':flag_ytick}
         txt_pos = { 'txt_xmin':txt_xmin, 'txt_xmax':txt_xmax,'txt_ymin':txt_ymin, 'txt_ymax':txt_ymax}
-        return txt_list,flag_tick,txt_pos
+    except Exception as e:
+        return False
+    return txt_list,flag_tick,txt_pos
 
 def detect_ax_ticks_backup(texts):
     txt_xmin = []
@@ -328,7 +331,11 @@ if uploaded_file is not None:
     st.image(image,caption="Uploaded Image")
     plt.show()
         
-    txt_list,flag_tick,txt_pos = detect_ax_ticks(texts)
+    if detect_ax_ticks(texts) != False:    
+        txt_list,flag_tick,txt_pos = detect_ax_ticks(texts)
+    else:
+        txt_list,flag_tick,txt_pos = detect_ax_ticks_backup(texts)
+        
     real_y,img_y = get_yticks(txt_list,flag_tick['flag_ytick'],txt_pos['txt_ymin'],txt_pos['txt_ymax'])
     real_x,img_x,mode = get_xticks(txt_list,flag_tick['flag_xtick'],txt_pos['txt_xmin'],txt_pos['txt_xmax'])
     if len(real_x)<2:
