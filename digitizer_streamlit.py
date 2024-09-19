@@ -15,7 +15,7 @@ from google.oauth2 import service_account
 from sklearn.cluster import KMeans
 
 import streamlit as st
-
+import streamlit.components.v1 as components
 components.html("""
 <head>
     <title>DigMyPlot</title>
