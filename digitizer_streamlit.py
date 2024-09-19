@@ -299,6 +299,7 @@ def detect_plot_color(detected_colors):
 
 st.title("DigMyPlot: Digitize your plot")
 st.subheader("Fully automated data extraction from images of plots")
+#st.write("** Important: More likely to work with stray text cropped out, like axis labels**")
 
 uploaded_file = st.file_uploader("Upload Image", type="png")
 if uploaded_file is not None:
@@ -335,7 +336,7 @@ if uploaded_file is not None:
         txt_list,flag_tick,txt_pos = detect_ax_ticks(texts)
     else:
         txt_list,flag_tick,txt_pos = detect_ax_ticks_backup(texts)
-        
+
     real_y,img_y = get_yticks(txt_list,flag_tick['flag_ytick'],txt_pos['txt_ymin'],txt_pos['txt_ymax'])
     real_x,img_x,mode = get_xticks(txt_list,flag_tick['flag_xtick'],txt_pos['txt_xmin'],txt_pos['txt_xmax'])
     if len(real_x)<2:
@@ -491,13 +492,13 @@ if uploaded_file is not None:
     if mode == 'normal':
         df = pd.DataFrame(data_shift, index=fin_x_ax, columns=['Data'])
 
-
+    df = df.dropna()
     # In[15]:
 
 
      # Create a plot with customized y-axis limits
     fig3, ax3 = plt.subplots(figsize=(10,5))
-    ax3.plot(df,'k')
+    ax3.plot(df,'ko')
     ax3.set_ylim([df['Data'].min()-0.5*df['Data'].std(), df['Data'].max()+0.5*df['Data'].std()])
     # Display the chart in Streamlit
     st.pyplot(fig3)
