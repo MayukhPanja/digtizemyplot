@@ -299,7 +299,7 @@ def detect_plot_color(detected_colors):
 
 st.title("DigMyPlot: Digitize your plot")
 st.subheader("Fully automated data extraction from images of plots")
-#st.write("** Important: More likely to work with stray text cropped out, like axis labels**")
+st.write("Current version only works for line plots")
 
 uploaded_file = st.file_uploader("Upload Image", type="png")
 if uploaded_file is not None:
