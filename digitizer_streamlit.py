@@ -16,6 +16,14 @@ from sklearn.cluster import KMeans
 
 import streamlit as st
 
+components.html("""
+<head>
+    <title>DigMyPlot</title>
+    <meta name="description" content="Extract data from image of plot.">
+    <meta name="keywords" content="digitize, data, plot">
+    <meta name="robots" content="index, follow">
+</head>
+""", height=0)
 
 def is_float(s):
     try:
