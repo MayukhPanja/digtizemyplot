@@ -244,7 +244,7 @@ def get_xticks(txt_list,flag_xtick,txt_xmin,txt_xmax):
     for i,txt in sorted(enumerate(txt_list),reverse=True):
         if flag_xtick[i] == 1:
             print(txt)
-            if try_dtime_1(txt) != False:
+            if try_dtime_1(txt) != False and has_point(txt) == False:
                 print(txt,' Here:1')
                 count_x+=1
                 real_x.append(try_dtime_1(txt))
